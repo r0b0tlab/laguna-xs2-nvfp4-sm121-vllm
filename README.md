@@ -35,8 +35,6 @@ Measured with **vLLM `bench serve`** (official tool) and **lm-eval-harness** (El
 | GSM8K | 0 | exact_match (flexible) | **35.94%** ±1.32% | 1,319 |
 | GSM8K | 0 | exact_match (strict) | 0.00% | 1,319 |
 
-Strict-match is 0% because the model doesn't emit GSM8K's `#### N` format. Flexible-extract (35.94%) shows actual math reasoning capability.
-
 ## Configuration
 
 | Setting | Value |
@@ -77,8 +75,6 @@ Without `MAX_JOBS=6` + `FLASHINFER_NVCC_THREADS=2`, ninja defaults to all 20 CPU
 
 **Tools:** vLLM `bench serve` (decode/prefill), lm-eval-harness (quality). No custom scripts.
 
-**Why published tools:** Previous benchmarks used a custom Python script with 44-token outputs — too short to measure decode rate. vLLM `bench serve` with `--ignore-eos` and 256-token forced outputs isolates steady-state decode. lm-eval-harness provides standardized, reproducible quality scores.
-
 ## Phase 2 — DFlash Implementation
 
 **Goal:** Enable DFlash speculative decoding (up to 15 tokens/step).
@@ -94,6 +90,29 @@ Without `MAX_JOBS=6` + `FLASHINFER_NVCC_THREADS=2`, ninja defaults to all 20 CPU
 | `docker/Dockerfile.kv-exp` | CUDA 13.0 + JIT deps + NVFP4 KV cache |
 | `scripts/entrypoint.sh` | Container entrypoint + JIT guard |
 | `scripts/benchmark_nvfp4_kv.py` | Benchmark harness |
+
+## Appendix: Methodology & Testing Notes
+
+This section documents methodology decisions and testing issues encountered during benchmark development. These notes explain how the final numbers were derived but are not part of the results themselves.
+
+### A.1 — Why Published Tools Over Custom Scripts
+
+The initial benchmark used a custom Python script that produced only 44-token outputs per request — too short to isolate decode throughput from prefill and scheduling overhead. The reported throughput conflated TTFT, first-token latency, and actual decode rate into a single misleading number.
+
+**Correction:** vLLM `bench serve` (vLLM's official benchmark) with `--ignore-eos` and 256-token forced outputs provides clean steady-state decode measurement, along with standard percentiles (TTFT/ITL/TPOT at p50/p99).
+
+### A.2 — GSM8K Strict vs Flexible Matching
+
+GSM8K in lm-eval-harness ships with two scoring variants:
+
+- **strict-match** — requires the model to emit `#### N` (exact format). Our score: **0%**
+- **flexible-extract** — regex-sweeps the response for any number matching the gold answer. Our score: **35.94%**
+
+The 0% strict is a formatting artifact — Laguna XS 2.1 writes answers in prose (e.g., "Final Answer: 9") rather than the `#### 9` format. The 35.94% flexible-extract reflects actual math reasoning capability.
+
+### A.3 — Few-Shot Attempt and Tokenizer Mismatch
+
+An initial 5-shot GSM8K run produced near-random results. Root cause: lm-eval-harness's internal tokenizer length-checking conflicted with the model's tokenizer, causing prompt truncation in the few-shot examples. Zero-shot configuration avoids this and produces clean results.
 
 ## License
 

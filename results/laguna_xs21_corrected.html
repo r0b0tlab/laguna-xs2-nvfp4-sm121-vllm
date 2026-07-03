@@ -98,9 +98,6 @@ code{background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-si
 <tr><td>GSM8K</td><td>0</td><td>exact_match (strict)</td><td style="color:var(--orange)">0.00%</td><td>±0.00%</td><td>1,319</td></tr>
 </tbody>
 </table>
-<div class="note warn">
-<strong>Strict vs flexible:</strong> 0% strict-match means the model doesn't emit GSM8K's expected <code>#### N</code> answer format. The 35.94% flexible-extract accuracy shows the model does solve math problems correctly — it just formats answers differently (e.g., <strong>"Final Answer: 9"</strong> instead of <code>#### 9</code>). This is a format mismatch, not a capability gap.
-</div>
 </div>
 
 <h2>Runtime Configuration</h2>
@@ -126,10 +123,23 @@ code{background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-si
 <h2>Methodology Notes</h2>
 <div class="card">
 <div class="note info">
-<strong>Previous numbers corrected.</strong> The initial benchmark used a custom Python script with 44-token outputs — too short to measure decode. Those numbers conflated TTFT, scheduling overhead, and decode. This report uses <code>vllm bench serve</code> (vLLM's official benchmark) with 256-token forced outputs and <code>--ignore-eos</code> to isolate steady-state decode.
-</div>
-<div class="note info" style="margin-top:6px">
 <strong>All numbers are per-model.</strong> No comparison data included. Every metric is standalone for Laguna XS 2.1 NVFP4.
+</div>
+</div>
+
+<h2>Appendix: Methodology & Testing Notes</h2>
+<div class="card">
+<h3>A.1 — Why Published Tools Over Custom Scripts</h3>
+<div class="note">
+The initial benchmark used a custom Python script that produced only 44-token outputs — too short to isolate decode from prefill and scheduling overhead. Corrected using <code>vllm bench serve</code> with 256-token forced outputs and <code>--ignore-eos</code> for clean steady-state measurement.
+</div>
+<h3 style="margin-top:10px">A.2 — GSM8K Strict vs Flexible Matching</h3>
+<div class="note">
+GSM8K ships two scoring variants: <strong>strict-match</strong> requires the exact <code>#### N</code> format (0%), while <strong>flexible-extract</strong> regex-sweeps for any number matching the gold answer (35.94%). The model writes answers in prose rather than the canonical format — the 0% strict is a formatting artifact, not a capability gap.
+</div>
+<h3 style="margin-top:10px">A.3 — Few-Shot Attempt and Tokenizer Mismatch</h3>
+<div class="note">
+An initial 5-shot GSM8K run produced near-random results due to a tokenizer conflict between lm-eval-harness and the model, causing prompt truncation in few-shot examples. Zero-shot configuration avoids this and produces clean results.
 </div>
 </div>
 
