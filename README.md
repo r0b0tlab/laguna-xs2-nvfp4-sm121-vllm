@@ -17,6 +17,7 @@ Measured with **vLLM `bench serve`** (official tool) and **lm-eval-harness** (El
 | 4 | 143.94 | 431.81 | 115.3ms | 124.2ms | 27.5ms | 29.0ms | 20/20 |
 | 8 | 203.22 | 609.65 | 128.7ms | 130.2ms | 34.7ms | 37.1ms | 20/20 |
 | 16 | **266.95** | 800.84 | 155.8ms | 208.9ms | 46.4ms | 49.5ms | 20/20 |
+| 32 | **495.45** | 1,486.34 | 1,808.8ms | 2,383.1ms | 55.5ms | 69.3ms | 32/32 |
 
 ### Prefill — vLLM bench serve
 
