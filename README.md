@@ -76,12 +76,6 @@ Without `MAX_JOBS=6` + `FLASHINFER_NVCC_THREADS=2`, ninja defaults to all 20 CPU
 
 **Tools:** vLLM `bench serve` (decode/prefill), lm-eval-harness (quality). No custom scripts.
 
-## Phase 2 — DFlash Implementation
-
-**Goal:** Enable DFlash speculative decoding (up to 15 tokens/step).
-
-**Blocker:** `DFlashLagunaForCausalLM` not registered in vLLM v0.24.0 — needs PR #46853.
-
 ## Files
 
 | Path | Description |

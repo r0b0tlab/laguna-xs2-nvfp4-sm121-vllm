@@ -7,7 +7,6 @@ Serve **poolside/Laguna-XS-2.1-NVFP4** (33B MoE, 3B active, 256 experts top-8) o
 ## Current Phase
 
 - **Phase 1 complete** — baseline benchmark recorded (c1–c32, 100% success)
-- **Phase 2 planned** — DFlash speculative decoding (up to 15 tokens/step)
 
 ## Architecture Constraints
 
@@ -27,24 +26,6 @@ Built from: vLLM v0.24.0 + FlashInfer PR #3684 + vLLM PR #46329 (SM121 NVFP4 KV 
 |----|--------|---------|
 | FlashInfer #3684 | ✅ Applied | NVFP4 KV cache support |
 | vLLM #46329 | ✅ Applied | Lift SM100-only NVFP4 KV guard for SM121 |
-| vLLM #46853 | ❌ Pending | DFlash architecture registration |
-
-## DFlash Phase 2 Implementation
-
-### Blocker
-`DFlashLagunaForCausalLM` not registered in vLLM v0.24.0 model registry. The `dflash.py` module exists but the model class is missing.
-
-### Models
-- Main: `poolside/Laguna-XS-2.1-NVFP4` — live on :18080
-- Draft: `poolside/Laguna-XS-2.1-DFlash` — 5-layer Llama-style speculator
-
-### Steps
-1. Apply PR #46853 to register `DFlashLagunaForCausalLM`
-2. Rebuild container with patched vLLM
-3. Mount both models (main + draft)
-4. Configure `SPECULATIVE_CONFIG={"method":"dflash","model_path":"/models/dflash"}`
-5. Benchmark DFlash vs Phase 1 baseline
-6. Generate comparison report
 
 ## Benchmark Protocol
 
