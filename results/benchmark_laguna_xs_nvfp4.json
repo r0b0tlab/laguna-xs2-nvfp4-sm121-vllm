@@ -1,0 +1,226 @@
+{
+  "utc": "2026-07-03T00:37:47.150256Z",
+  "base_url": "http://127.0.0.1:18080",
+  "model": "Laguna-XS-2.1-NVFP4",
+  "models_response": {
+    "object": "list",
+    "data": [
+      {
+        "id": "Laguna-XS-2.1-NVFP4",
+        "object": "model",
+        "created": 1783039067,
+        "owned_by": "vllm",
+        "root": "/models/model",
+        "parent": null,
+        "max_model_len": 32768,
+        "permission": [
+          {
+            "id": "modelperm-ae7e70de9d92fb20",
+            "object": "model_permission",
+            "created": 1783039067,
+            "allow_create_engine": false,
+            "allow_sampling": true,
+            "allow_logprobs": true,
+            "allow_search_indices": false,
+            "allow_view": true,
+            "allow_fine_tuning": false,
+            "organization": "*",
+            "group": null,
+            "is_blocking": false
+          }
+        ]
+      }
+    ]
+  },
+  "gpu_info": "NVIDIA GB10, [N/A], [N/A], [N/A], 580.159.03",
+  "sanity_suite": [
+    {
+      "name": "math",
+      "seconds": 0.12837934494018555,
+      "completion_tokens": 4,
+      "prompt_tokens": 29,
+      "response_text": "391",
+      "ttft_proxy": -15.45045073034832
+    },
+    {
+      "name": "code",
+      "seconds": 0.1647777557373047,
+      "completion_tokens": 5,
+      "prompt_tokens": 26,
+      "response_text": "s[::-1]",
+      "ttft_proxy": -15.007173026172849
+    },
+    {
+      "name": "reasoning",
+      "seconds": 1.4608237743377686,
+      "completion_tokens": 64,
+      "prompt_tokens": 50,
+      "response_text": "No, because the conclusion that all Bloops are Lazzies does not necessarily follow from the premises given. \n\nWait, actually, let me reconsider. If all Bloops are Razzies and all Razzies are Lazzies, ",
+      "ttft_proxy": -20.44462475555522
+    },
+    {
+      "name": "factual",
+      "seconds": 0.09763503074645996,
+      "completion_tokens": 3,
+      "prompt_tokens": 24,
+      "response_text": "Canberra",
+      "ttft_proxy": -15.265703194600356
+    },
+    {
+      "name": "instruction",
+      "seconds": 0.18275976181030273,
+      "completion_tokens": 6,
+      "prompt_tokens": 27,
+      "response_text": "red, orange, yellow",
+      "ttft_proxy": -16.23223208477505
+    }
+  ],
+  "prefill_measurements": [
+    {
+      "name": "short",
+      "prompt_tokens": 44,
+      "seconds": 0.40451741218566895,
+      "prefill_rate_tok_s": 108.77158479349832,
+      "completion_tokens": 16
+    },
+    {
+      "name": "medium",
+      "prompt_tokens": 194,
+      "seconds": 0.3999638557434082,
+      "prefill_rate_tok_s": 485.0438288715225,
+      "completion_tokens": 16
+    },
+    {
+      "name": "long",
+      "prompt_tokens": 374,
+      "seconds": 0.409273624420166,
+      "prefill_rate_tok_s": 913.8140786127141,
+      "completion_tokens": 16
+    },
+    {
+      "name": "xlong",
+      "prompt_tokens": 734,
+      "seconds": 0.419661283493042,
+      "prefill_rate_tok_s": 1749.0295837885405,
+      "completion_tokens": 16
+    }
+  ],
+  "ramp": [
+    {
+      "concurrency": 1,
+      "requests_ok": 1,
+      "requests_error": 0,
+      "seconds": 1.0046865940093994,
+      "output_tokens": 44,
+      "output_tok_s": 43.79475177867095,
+      "power_watts_mean": 35.34,
+      "power_watts_peak": 35.34,
+      "power_watts_min": 35.34,
+      "temp_c_mean": 51.0,
+      "temp_c_peak": 51.0,
+      "util_pct_mean": 86.0,
+      "tok_s_per_watt": 1.2392402880212492,
+      "joules_per_1k_output_tokens": 806.9460052793677,
+      "errors": []
+    },
+    {
+      "concurrency": 2,
+      "requests_ok": 2,
+      "requests_error": 0,
+      "seconds": 0.9621701240539551,
+      "output_tokens": 88,
+      "output_tok_s": 91.4599173264969,
+      "power_watts_mean": 33.7,
+      "power_watts_peak": 33.7,
+      "power_watts_min": 33.7,
+      "temp_c_mean": 51.0,
+      "temp_c_peak": 51.0,
+      "util_pct_mean": 95.0,
+      "tok_s_per_watt": 2.7139441343174155,
+      "joules_per_1k_output_tokens": 368.467422507026,
+      "errors": []
+    },
+    {
+      "concurrency": 4,
+      "requests_ok": 4,
+      "requests_error": 0,
+      "seconds": 0.9734416007995605,
+      "output_tokens": 176,
+      "output_tok_s": 180.80180655463872,
+      "power_watts_mean": 30.29,
+      "power_watts_peak": 30.29,
+      "power_watts_min": 30.29,
+      "temp_c_mean": 51.0,
+      "temp_c_peak": 51.0,
+      "util_pct_mean": 96.0,
+      "tok_s_per_watt": 5.969026297611051,
+      "joules_per_1k_output_tokens": 167.53151186487892,
+      "errors": []
+    },
+    {
+      "concurrency": 8,
+      "requests_ok": 8,
+      "requests_error": 0,
+      "seconds": 2.0038163661956787,
+      "output_tokens": 397,
+      "output_tok_s": 198.12194704932944,
+      "power_watts_mean": 31.854999999999997,
+      "power_watts_peak": 32.65,
+      "power_watts_min": 31.06,
+      "temp_c_mean": 51.5,
+      "temp_c_peak": 52.0,
+      "util_pct_mean": 96.0,
+      "tok_s_per_watt": 6.219492922597063,
+      "joules_per_1k_output_tokens": 160.7848119525525,
+      "errors": []
+    },
+    {
+      "concurrency": 16,
+      "requests_ok": 16,
+      "requests_error": 0,
+      "seconds": 1.1616458892822266,
+      "output_tokens": 704,
+      "output_tok_s": 606.0366644391063,
+      "power_watts_mean": 34.405,
+      "power_watts_peak": 35.27,
+      "power_watts_min": 33.54,
+      "temp_c_mean": 52.5,
+      "temp_c_peak": 53.0,
+      "util_pct_mean": 96.0,
+      "tok_s_per_watt": 17.61478460802518,
+      "joules_per_1k_output_tokens": 56.770492643117905,
+      "errors": []
+    },
+    {
+      "concurrency": 32,
+      "requests_ok": 32,
+      "requests_error": 0,
+      "seconds": 1.285750389099121,
+      "output_tokens": 1408,
+      "output_tok_s": 1095.0803608051285,
+      "power_watts_mean": 38.09,
+      "power_watts_peak": 41.28,
+      "power_watts_min": 34.9,
+      "temp_c_mean": 53.0,
+      "temp_c_peak": 54.0,
+      "util_pct_mean": 92.0,
+      "tok_s_per_watt": 28.749812570363044,
+      "joules_per_1k_output_tokens": 34.78283545510335,
+      "errors": []
+    }
+  ],
+  "kv_facts": {
+    "kv_tokens": "1,791,777",
+    "max_conc": "32,768 @ 54.68x",
+    "kv_mem": "61.46",
+    "kv_dtype": "auto,",
+    "cache_py_dtype": "nvfp4",
+    "attn_backend": "':"
+  },
+  "metrics": {
+    "vllm:prompt_tokens_total": 3293.0,
+    "vllm:generation_tokens_total": 2974.0,
+    "vllm:spec_decode_num_draft_tokens_total": null,
+    "vllm:spec_decode_num_accepted_tokens_total": null
+  }
+}
