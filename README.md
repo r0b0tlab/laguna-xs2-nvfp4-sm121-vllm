@@ -2,20 +2,40 @@
 
 Reproducibility pack for serving **poolside/Laguna-XS-2.1-NVFP4** (33B MoE, 3B active, 256 experts top-8) on NVIDIA GB10 / Blackwell SM121.
 
-## Phase 1 Baseline Results
+## Benchmark Results
 
-| Concurrency | Output tok/s | Output tokens | Success |
-|---:|---:|---:|---:|
-| 1 | **43.79** | 44 | 1/1 ✅ |
-| 2 | 91.46 | 88 | 2/2 ✅ |
-| 4 | 180.80 | 176 | 4/4 ✅ |
-| 8 | 198.12 | 397 | 8/8 ✅ |
-| 16 | 606.04 | 704 | 16/16 ✅ |
-| 32 | **1,095.08** | 1,408 | 32/32 ✅ |
+Measured with **vLLM `bench serve`** (official tool) and **lm-eval-harness** (EleutherAI).
 
-**Prefill:** 1,749 tok/s peak (734-token prompt)
+### Decode Ramp — vLLM bench serve
 
-**100% success rate across all concurrency levels.** Zero Marlin/emulation — pure FLASHINFER_CUTLASS MoE.
+`--dataset-name random --random-input-len 512 --random-output-len 256 --num-prompts 20 --ignore-eos`
+
+| C | Output tok/s | Total tok/s | TTFT p50 | TTFT p99 | ITL p50 | ITL p99 | OK |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | **43.79** | 131.38 | 120.5ms | 127.7ms | 22.4ms | 27.0ms | 20/20 |
+| 2 | 84.81 | 254.43 | 81.3ms | 101.7ms | 23.3ms | 24.8ms | 20/20 |
+| 4 | 143.94 | 431.81 | 115.3ms | 124.2ms | 27.5ms | 29.0ms | 20/20 |
+| 8 | 203.22 | 609.65 | 128.7ms | 130.2ms | 34.7ms | 37.1ms | 20/20 |
+| 16 | **266.95** | 800.84 | 155.8ms | 208.9ms | 46.4ms | 49.5ms | 20/20 |
+
+### Prefill — vLLM bench serve
+
+`--random-input-len 2048 --random-output-len 1`
+
+| Input tokens | TTFT p50 | Prefill rate |
+|---:|---:|---:|
+| 2,048 | 228.2ms | **8,975 tok/s** |
+
+### Reasoning — lm-eval-harness
+
+`--tasks gsm8k --num_fewshot 0 --apply_chat_template`
+
+| Task | N-shot | Metric | Score | Samples |
+|------|---:|-------|---:|---:|
+| GSM8K | 0 | exact_match (flexible) | **35.94%** ±1.32% | 1,319 |
+| GSM8K | 0 | exact_match (strict) | 0.00% | 1,319 |
+
+Strict-match is 0% because the model doesn't emit GSM8K's `#### N` format. Flexible-extract (35.94%) shows actual math reasoning capability.
 
 ## Configuration
 
@@ -33,11 +53,8 @@ Reproducibility pack for serving **poolside/Laguna-XS-2.1-NVFP4** (33B MoE, 3B a
 | Attention | FlashInfer (global + sliding window) |
 | KV cache | FP8 (baked in config) |
 | Spec decode | None (Phase 1 baseline) |
-| Tool call parser | poolside_v1 |
 
 ## Container
-
-### Run
 
 ```bash
 docker run -d --gpus all --ipc=host --name sm121-laguna \
@@ -46,7 +63,6 @@ docker run -d --gpus all --ipc=host --name sm121-laguna \
   -e SERVED_MODEL_NAME="Laguna-XS-2.1-NVFP4" \
   -e MAX_MODEL_LEN=32768 \
   -e TOOL_CALL_PARSER=poolside_v1 \
-  -e REASONING_PARSER=poolside_v1 \
   -e GPU_MEMORY_UTILIZATION=0.72 \
   -e MAX_JOBS=6 \
   -e FLASHINFER_NVCC_THREADS=2 \
@@ -55,55 +71,30 @@ docker run -d --gpus all --ipc=host --name sm121-laguna \
 
 ### Critical: FlashInfer JIT Parallelism Guard
 
-Without `MAX_JOBS=6` + `FLASHINFER_NVCC_THREADS=2`, ninja defaults to all 20 CPU cores during runtime MoE kernel compilation (97 CUTLASS objects), exhausting 121 GiB RAM and freezing the host. This is baked into `entrypoint.sh`.
+Without `MAX_JOBS=6` + `FLASHINFER_NVCC_THREADS=2`, ninja defaults to all 20 CPU cores during runtime MoE kernel compilation (97 CUTLASS objects), exhausting 121 GiB RAM and freezing the host.
 
-**Why this happens:** Laguna's `compressed-tensors` nvfp4-pack format routes to `FLASHINFER_CUTLASS` which JIT-compiles 97 SM121-specific MoE kernels on first run.
+## Benchmark Methodology
 
-### Startup Timeline
+**Tools:** vLLM `bench serve` (decode/prefill), lm-eval-harness (quality). No custom scripts.
 
-| Phase | Duration |
-|-------|----------|
-| Checkpoint load (5 shards, 20 GiB) | 131.7s |
-| torch.compile (mode 3) | 25.5s |
-| MoE profiling/warmup | 630.0s |
-| FlashInfer JIT (first run) | ~10 min |
-| **Total cold start** | **~15 min** |
-| Cached restart | ~3 min |
+**Why published tools:** Previous benchmarks used a custom Python script with 44-token outputs — too short to measure decode rate. vLLM `bench serve` with `--ignore-eos` and 256-token forced outputs isolates steady-state decode. lm-eval-harness provides standardized, reproducible quality scores.
 
 ## Phase 2 — DFlash Implementation
 
 **Goal:** Enable DFlash speculative decoding (up to 15 tokens/step).
 
-**Status:** DFlash draft model downloaded (`Laguna-XS-2.1-DFlash`, 5-layer Llama-style speculator). The `dflash.py` module exists in vLLM v0.24.0, but `DFlashLagunaForCausalLM` architecture is not registered — needs PR #46853.
-
-**Steps:**
-1. Apply vLLM PR #46853 to register DFlash architecture
-2. Mount DFlash draft model as second volume
-3. Configure `SPECULATIVE_CONFIG={"method":"dflash","model_path":"/models/dflash"}`
-4. Benchmark DFlash vs Phase 1 baseline (same ramp c1–c32)
-5. Generate comparison report
+**Blocker:** `DFlashLagunaForCausalLM` not registered in vLLM v0.24.0 — needs PR #46853.
 
 ## Files
 
 | Path | Description |
 |------|-------------|
+| `results/laguna_xs21_corrected.html` | HTML report (vllm bench + lm-eval) |
+| `results/corrected_results.json` | Raw benchmark JSON |
 | `docker/Dockerfile.kv-exp` | CUDA 13.0 + JIT deps + NVFP4 KV cache |
-| `docker/vllm-pr46329.diff` | Lift SM100-only NVFP4 KV guard for SM121 |
-| `scripts/entrypoint.sh` | Container entrypoint + JIT parallelism guard |
-| `scripts/benchmark_nvfp4_kv.py` | Benchmark harness with power/decode/prefill telemetry |
-| `scripts/audit_runtime.py` | SM121 runtime gate verification |
-| `results/laguna_xs21_nvfp4_baseline.html` | Phase 1 HTML report |
-| `results/benchmark_laguna_xs_nvfp4.json` | Raw benchmark data |
-
-## Environment
-
-- **Hardware:** NVIDIA GB10 (DGX Spark), SM121, 128 GB unified memory
-- **vLLM:** v0.24.1.dev (ee0da84) built from source for SM121
-- **CUDA:** 13.0
-- **Driver:** 580.159.03
-- **FlashInfer:** 0.6.12 with PR #3684
-- **Key upstream PRs:** vLLM #46329 (NVFP4 KV guard lift), vLLM #46853 (DFlash — pending)
+| `scripts/entrypoint.sh` | Container entrypoint + JIT guard |
+| `scripts/benchmark_nvfp4_kv.py` | Benchmark harness |
 
 ## License
 
-Scripts and documentation: MIT. Model weights are not redistributed; follow upstream poolside/Laguna-XS-2.1 license.
+MIT. Model weights not redistributed; follow upstream poolside license.

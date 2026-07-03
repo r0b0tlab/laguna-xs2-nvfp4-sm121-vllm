@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laguna XS 2.1 NVFP4 — Corrected Benchmark</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#30363d;--text:#e6edf3;--dim:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--red:#f85149;--purple:#bc8cff;--teal:#39d0d8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.6;padding:12px;max-width:100%}
+h1{font-size:1.3rem;margin-bottom:4px}
+h2{font-size:1.05rem;margin:18px 0 8px;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:4px}
+h3{font-size:0.9rem;margin:10px 0 6px;color:var(--purple)}
+.sub{color:var(--dim);font-size:0.75rem;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.m{text-align:center;padding:8px 4px;background:rgba(255,255,255,0.03);border-radius:6px}
+.m .v{font-size:1.3rem;font-weight:700}
+.m .l{font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.v.g{color:var(--green)}.v.b{color:var(--accent)}.v.o{color:var(--orange)}.v.p{color:var(--purple)}.v.t{color:var(--teal)}
+table{width:100%;border-collapse:collapse;font-size:0.78rem;margin:6px 0}
+th{background:rgba(88,166,255,0.1);padding:5px 6px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;color:var(--accent)}
+th:first-child{text-align:left}
+td{padding:4px 6px;text-align:right;border-bottom:1px solid rgba(48,54,61,0.5)}
+td:first-child{text-align:left;font-weight:500}
+.note{font-size:0.72rem;color:var(--dim);margin-top:6px;padding:6px;background:rgba(255,255,255,0.02);border-radius:4px;border-left:3px solid var(--border)}
+.note.warn{border-left-color:var(--orange)}
+.note.ok{border-left-color:var(--green)}
+.note.info{border-left-color:var(--accent)}
+.badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:0.65rem;font-weight:600}
+.badge.g{background:rgba(63,185,80,0.2);color:var(--green)}
+.badge.o{background:rgba(210,153,34,0.2);color:var(--orange)}
+.badge.b{background:rgba(88,166,255,0.2);color:var(--accent)}
+code{background:rgba(255,255,255,0.06);padding:1px 4px;border-radius:3px;font-size:0.72rem;color:var(--teal)}
+.tool{font-size:0.72rem;color:var(--dim);margin-bottom:8px}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}.m .v{font-size:1.1rem}table{font-size:0.68rem}th,td{padding:3px 4px}}
+</style>
+</head>
+<body>
+
+<h1>Laguna XS 2.1 NVFP4 — Benchmark Results</h1>
+<div class="sub">
+  poolside/Laguna-XS-2.1-NVFP4 (33B MoE, 3B active) · GB10 SM121 · vLLM v0.24.1.dev · 2026-07-03<br>
+  <strong>Tools:</strong> vLLM <code>bench serve</code> + lm-eval-harness (EleutherAI)
+</div>
+
+<div class="grid">
+<div class="m"><div class="v b">43.79</div><div class="l">c1 decode tok/s</div></div>
+<div class="m"><div class="v g">266.95</div><div class="l">c16 decode tok/s</div></div>
+<div class="m"><div class="v t">8,975</div><div class="l">prefill tok/s</div></div>
+<div class="m"><div class="v p">35.9%</div><div class="l">GSM8K 0-shot acc</div></div>
+<div class="m"><div class="v">22.4</div><div class="l">c1 ITL p50 (ms)</div></div>
+<div class="m"><div class="v g">20/20</div><div class="l">requests OK per level</div></div>
+</div>
+
+<h2>Decode Ramp — vLLM bench serve</h2>
+<div class="tool">Tool: <code>vllm bench serve --dataset-name random --random-input-len 512 --random-output-len 256 --num-prompts 20 --ignore-eos</code></div>
+<div class="card">
+<table>
+<thead>
+<tr><th>C</th><th>Output tok/s</th><th>Total tok/s</th><th>TTFT p50</th><th>TTFT p99</th><th>TPOT p50</th><th>ITL p50</th><th>ITL p99</th><th>OK</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td><strong>43.79</strong></td><td>131.38</td><td>120.5ms</td><td>127.7ms</td><td>22.4ms</td><td>22.4ms</td><td>27.0ms</td><td>20/20 ✅</td></tr>
+<tr><td>2</td><td>84.81</td><td>254.43</td><td>81.3ms</td><td>101.7ms</td><td>23.4ms</td><td>23.3ms</td><td>24.8ms</td><td>20/20 ✅</td></tr>
+<tr><td>4</td><td>143.94</td><td>431.81</td><td>115.3ms</td><td>124.2ms</td><td>27.5ms</td><td>27.5ms</td><td>29.0ms</td><td>20/20 ✅</td></tr>
+<tr><td>8</td><td>203.22</td><td>609.65</td><td>128.7ms</td><td>130.2ms</td><td>34.6ms</td><td>34.7ms</td><td>37.1ms</td><td>20/20 ✅</td></tr>
+<tr><td>16</td><td><strong>266.95</strong></td><td>800.84</td><td>155.8ms</td><td>208.9ms</td><td>46.5ms</td><td>46.4ms</td><td>49.5ms</td><td>20/20 ✅</td></tr>
+</tbody>
+</table>
+<div class="note info">
+<strong>Methodology:</strong> 256 forced output tokens per request (<code>--ignore-eos</code>) — enough for steady-state decode measurement. Each concurrency level ran 20 sequential requests. ITL = inter-token latency (pure decode step time, excludes TTFT).
+</div>
+<div class="note ok">
+<strong>Per-request decode rate at c1:</strong> 1,000ms / 22.4ms ITL = ~44.6 tok/s. This is the true single-user decode speed. At c16, the 3B active MoE batches efficiently: 266.95 aggregate tok/s.
+</div>
+</div>
+
+<h2>Prefill Throughput — vLLM bench serve</h2>
+<div class="tool">Tool: <code>vllm bench serve --dataset-name random --random-input-len 2048 --random-output-len 1 --num-prompts 10 --ignore-eos</code></div>
+<div class="card">
+<table>
+<thead><tr><th>Input tokens</th><th>TTFT p50</th><th>TTFT p99</th><th>Prefill rate</th></tr></thead>
+<tbody>
+<tr><td>2,048</td><td>228.2ms</td><td>230.3ms</td><td><strong style="color:var(--teal)">8,975 tok/s</strong></td></tr>
+</tbody>
+</table>
+<div class="note info">TTFT with 1 output token ≈ pure prefill latency. The 3B active parameter count enables fast prefill — 2048 tokens processed in 228ms.</div>
+</div>
+
+<h2>Reasoning Quality — lm-eval-harness</h2>
+<div class="tool">Tool: <code>lm_eval --model local-chat-completions --tasks gsm8k --num_fewshot 0 --apply_chat_template</code></div>
+<div class="card">
+<table>
+<thead><tr><th>Task</th><th>N-shot</th><th>Metric</th><th>Score</th><th>Stderr</th><th>Samples</th></tr></thead>
+<tbody>
+<tr><td>GSM8K</td><td>0</td><td>exact_match (flexible)</td><td><strong style="color:var(--green)">35.94%</strong></td><td>±1.32%</td><td>1,319</td></tr>
+<tr><td>GSM8K</td><td>0</td><td>exact_match (strict)</td><td style="color:var(--orange)">0.00%</td><td>±0.00%</td><td>1,319</td></tr>
+</tbody>
+</table>
+<div class="note warn">
+<strong>Strict vs flexible:</strong> 0% strict-match means the model doesn't emit GSM8K's expected <code>#### N</code> answer format. The 35.94% flexible-extract accuracy shows the model does solve math problems correctly — it just formats answers differently (e.g., <strong>"Final Answer: 9"</strong> instead of <code>#### 9</code>). This is a format mismatch, not a capability gap.
+</div>
+</div>
+
+<h2>Runtime Configuration</h2>
+<div class="card">
+<table>
+<thead><tr><th>Setting</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Model</td><td style="text-align:left">poolside/Laguna-XS-2.1-NVFP4</td></tr>
+<tr><td>Total / Active params</td><td>33B / 3B</td></tr>
+<tr><td>Architecture</td><td style="text-align:left">LagunaForCausalLM (MoE, 256 experts top-8)</td></tr>
+<tr><td>Quantization</td><td style="text-align:left">compressed-tensors nvfp4-pack-quantized</td></tr>
+<tr><td>MoE backend</td><td style="text-align:left">FLASHINFER_CUTLASS</td></tr>
+<tr><td>GEMM backend</td><td style="text-align:left">FlashInferCutlassNvFp4LinearKernel</td></tr>
+<tr><td>Attention</td><td style="text-align:left">FlashInfer (10 global + 30 SWA w=512)</td></tr>
+<tr><td>KV cache</td><td>FP8</td></tr>
+<tr><td>Context</td><td>32,768</td></tr>
+<tr><td>Spec decode</td><td><span class="badge o">None (Phase 1 baseline)</span></td></tr>
+<tr><td>MAX_JOBS / NVCC_THREADS</td><td>6 / 2</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>Methodology Notes</h2>
+<div class="card">
+<div class="note info">
+<strong>Previous numbers corrected.</strong> The initial benchmark used a custom Python script with 44-token outputs — too short to measure decode. Those numbers conflated TTFT, scheduling overhead, and decode. This report uses <code>vllm bench serve</code> (vLLM's official benchmark) with 256-token forced outputs and <code>--ignore-eos</code> to isolate steady-state decode.
+</div>
+<div class="note info" style="margin-top:6px">
+<strong>All numbers are per-model.</strong> No comparison data included. Every metric is standalone for Laguna XS 2.1 NVFP4.
+</div>
+</div>
+
+<div style="text-align:center;margin-top:16px;padding:10px;color:var(--dim);font-size:0.65rem;border-top:1px solid var(--border)">
+Generated 2026-07-03 · r0b0tlab · SM121 NVFP4<br>
+vLLM v0.24.1.dev (bench serve) · lm-eval-harness (EleutherAI) · GB10 SM121
+</div>
+
+</body>
+</html>
