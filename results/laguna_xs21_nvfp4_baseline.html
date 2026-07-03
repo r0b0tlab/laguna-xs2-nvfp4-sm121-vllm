@@ -177,7 +177,7 @@ td:first-child { text-align: left; font-weight: 500; }
 <strong>Fix applied:</strong> <code>MAX_JOBS=6</code> + <code>FLASHINFER_NVCC_THREADS=2</code> baked into entrypoint.sh. JIT compiles with 6 parallel nvcc × 2 threads each — peak ~97 GiB used, host survives. JIT cache persisted (172 MB) to avoid recompilation on restart.
 </div>
 <div class="note info" style="margin-top:8px;">
-<strong>Why this happens:</strong> Laguna's <code>compressed-tensors</code> nvfp4-pack format routes to <code>FLASHINFER_CUTLASS</code> which JIT-compiles 97 SM121-specific MoE kernels on first run. Models using <code>modelopt_mixed</code> quantization take a different MoE path that doesn't require this JIT step.
+<strong>Why this happens:</strong> Laguna's <code>compressed-tensors</code> nvfp4-pack format routes to <code>FLASHINFER_CUTLASS</code> which JIT-compiles 97 SM121-specific MoE kernels on first run.
 </div>
 </div>
 
