@@ -29,12 +29,12 @@ Measured with **vLLM `bench serve`** (official tool) and **lm-eval-harness** (El
 
 ### Reasoning — lm-eval-harness
 
-`--tasks gsm8k --num_fewshot 0 --apply_chat_template`
+Full GSM8K was run through the OpenAI-compatible **completions** endpoint to keep the model answer in visible text for scoring.
 
-| Task | N-shot | Metric | Score | Samples |
-|------|---:|-------|---:|---:|
-| GSM8K | 0 | exact_match (flexible) | **35.94%** ±1.32% | 1,319 |
-| GSM8K | 0 | exact_match (strict) | 0.00% | 1,319 |
+| Task | N-shot | Metric | Score | Samples | Artifacts |
+|------|---:|-------|---:|---:|---|
+| GSM8K | 0 | exact_match (flexible) | **40.11%** ±1.35% | 1,319 | `results/gsm8k-full-0shot-20260703/` |
+| GSM8K | 0 | exact_match (strict) | 0.00% | 1,319 | `results/gsm8k-full-0shot-20260703/` |
 
 ## Configuration
 
@@ -101,9 +101,9 @@ The initial benchmark used a custom Python script that produced only 44-token ou
 GSM8K in lm-eval-harness ships with two scoring variants:
 
 - **strict-match** — requires the model to emit `#### N` (exact format). Our score: **0%**
-- **flexible-extract** — regex-sweeps the response for any number matching the gold answer. Our score: **35.94%**
+- **flexible-extract** — regex-sweeps the response for any number matching the gold answer. Our current full-set score: **40.11%**
 
-The 0% strict is a formatting artifact — Laguna XS 2.1 writes answers in prose (e.g., "Final Answer: 9") rather than the `#### 9` format. The 35.94% flexible-extract reflects actual math reasoning capability.
+The 0% strict is a formatting artifact — Laguna XS 2.1 writes answers in prose (e.g., "Final Answer: 9") rather than the `#### 9` format. The 40.11% flexible-extract reflects actual math reasoning capability in the latest full-set completions-endpoint run.
 
 ### A.3 — Few-Shot Attempt and Tokenizer Mismatch
 
